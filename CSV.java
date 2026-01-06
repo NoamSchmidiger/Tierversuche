@@ -6,22 +6,17 @@ import java.util.List;
 public class CSV {
 
     public static List<DatenEingang> load(String path) throws Exception {
-
         List<DatenEingang> result = new ArrayList<>();
-
         BufferedReader br = new BufferedReader(new FileReader(path));
         String line;
 
         br.readLine(); // Header überspringen
 
         while ((line = br.readLine()) != null) {
-
-            String[] parts = line.split(";");
-
+            String[] parts = line.split(",");
             int year = Integer.parseInt(parts[0]);
             String canton = parts[1];
-            int value = Integer.parseInt(parts[2]);
-
+            int value = Integer.parseInt(parts[12]); // Spalte "Number Of Animals Used For The First Time"
             result.add(new DatenEingang(year, canton, value));
         }
 

@@ -1,8 +1,7 @@
 public class DatenEingang {
-
-    int year;
-    String canton;
-    int value;
+    public int year;
+    public String canton;
+    public int value;
 
     public DatenEingang(int year, String canton, int value) {
         this.year = year;

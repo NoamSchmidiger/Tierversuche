@@ -1,55 +1,31 @@
 import java.io.BufferedReader;
 import java.io.FileReader;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.ArrayList;
+import java.util.List;
 
 public class CSV {
 
-    // Year -> (Canton -> TotalAnimals)
-    public static Map<Integer, Map<String, Integer>> load(String path) throws IOException {
+    public static List<DatenEingang> load(String path) throws Exception {
 
-        Map<Integer, Map<String, Integer>> data = new TreeMap<>();
+        List<DatenEingang> result = new ArrayList<>();
 
         BufferedReader br = new BufferedReader(new FileReader(path));
         String line;
-        boolean firstLine = true;
+
+        br.readLine(); // Header überspringen
 
         while ((line = br.readLine()) != null) {
 
-            // Header überspringen
-            if (firstLine) {
-                firstLine = false;
-                continue;
-            }
+            String[] parts = line.split(";");
 
-            String[] p = line.split(",");
+            int year = Integer.parseInt(parts[0]);
+            String canton = parts[1];
+            int value = Integer.parseInt(parts[2]);
 
-            int year = Integer.parseInt(p[0].trim());
-            String canton = p[1].trim();
-
-            int s0 = Integer.parseInt(p[4].trim());
-            int s1 = Integer.parseInt(p[5].trim());
-            int s2 = Integer.parseInt(p[6].trim());
-            int s3 = Integer.parseInt(p[7].trim());
-
-            int total = s0 + s1 + s2 + s3;
-
-            if (!data.containsKey(year)) {
-                data.put(year, new HashMap<>());
-            }
-
-            Map<String, Integer> yearMap = data.get(year);
-
-            if (!yearMap.containsKey(canton)) {
-                yearMap.put(canton, 0);
-            }
-
-            yearMap.put(canton, yearMap.get(canton) + total);
+            result.add(new DatenEingang(year, canton, value));
         }
 
         br.close();
-        return data;
+        return result;
     }
 }

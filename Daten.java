@@ -1,55 +1,63 @@
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 public class Daten {
 
-    private Map<Integer, Map<String, Integer>> data;
+    private List<DatenEingang> data;
 
-    public Daten(Map<Integer, Map<String, Integer>> data) {
+    public Daten(List<DatenEingang> data) {
         this.data = data;
     }
 
     // Gesamtzahl pro Jahr
-    public Map<Integer, Integer> totalPerYear() {
+    public List<String> totalPerYear() {
 
-        Map<Integer, Integer> result = new java.util.TreeMap<>();
+        List<Integer> years = new ArrayList<>();
+        List<Integer> sums = new ArrayList<>();
 
-        for (Integer year : data.keySet()) {
+        for (DatenEingang entry : data) {
 
-            int sum = 0;
-            Map<String, Integer> cantons = data.get(year);
+            if (entry.year == 0) continue;
 
-            for (String canton : cantons.keySet()) {
-                sum += cantons.get(canton);
+            int index = years.indexOf(entry.year);
+
+            if (index == -1) {
+                years.add(entry.year);
+                sums.add(entry.value);
+            } else {
+                sums.set(index, sums.get(index) + entry.value);
             }
-            if (year != null && year != 0){
-                result.put(year, sum);
-            }
+        }
+
+        List<String> result = new ArrayList<>();
+        for (int i = 0; i < years.size(); i++) {
+            result.add(years.get(i) + ": " + sums.get(i));
         }
 
         return result;
     }
 
     // Gesamtzahl pro Kanton
-    public Map<String, Integer> totalPerCanton() {
+    public List<String> totalPerCanton() {
 
-        Map<String, Integer> result = new java.util.HashMap<>();
+        List<String> cantons = new ArrayList<>();
+        List<Integer> sums = new ArrayList<>();
 
-        for (Integer year : data.keySet()) {
+        for (DatenEingang entry : data) {
 
-            Map<String, Integer> cantons = data.get(year);
+            int index = cantons.indexOf(entry.canton);
 
-            for (String canton : cantons.keySet()) {
-
-                int value = cantons.get(canton);
-
-                if (!result.containsKey(canton)) {
-                    result.put(canton, 0);
-                }
-
-                result.put(canton, result.get(canton) + value);
+            if (index == -1) {
+                cantons.add(entry.canton);
+                sums.add(entry.value);
+            } else {
+                sums.set(index, sums.get(index) + entry.value);
             }
+        }
+
+        List<String> result = new ArrayList<>();
+        for (int i = 0; i < cantons.size(); i++) {
+            result.add(cantons.get(i) + ": " + sums.get(i));
         }
 
         return result;
@@ -58,68 +66,70 @@ public class Daten {
     // Top 5 Kantone
     public List<String> top5Cantons() {
 
-        Map<String, Integer> totals = totalPerCanton();
+        List<String> cantons = new ArrayList<>();
+        List<Integer> sums = new ArrayList<>();
+
+        for (DatenEingang entry : data) {
+            int index = cantons.indexOf(entry.canton);
+
+            if (index == -1) {
+                cantons.add(entry.canton);
+                sums.add(entry.value);
+            } else {
+                sums.set(index, sums.get(index) + entry.value);
+            }
+        }
+
         List<String> result = new ArrayList<>();
 
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < 5 && !cantons.isEmpty(); i++) {
 
-            String maxCanton = null;
-            int maxValue = -1;
+            int maxIndex = 0;
 
-            for (String canton : totals.keySet()) {
-                int value = totals.get(canton);
-                if (value > maxValue) {
-                    maxValue = value;
-                    maxCanton = canton;
+            for (int j = 1; j < sums.size(); j++) {
+                if (sums.get(j) > sums.get(maxIndex)) {
+                    maxIndex = j;
                 }
             }
 
-            if (maxCanton != null) {
-                result.add(maxCanton + ": " + maxValue);
-                totals.put(maxCanton, -1); // markieren als benutzt
-            }
+            result.add(cantons.get(maxIndex) + ": " + sums.get(maxIndex));
+
+            cantons.remove(maxIndex);
+            sums.remove(maxIndex);
         }
 
         return result;
     }
 
-    // Extremwerte
+    // Maximalwert
     public String maxValue() {
 
         int max = Integer.MIN_VALUE;
         String result = "";
 
-        for (Integer year : data.keySet()) {
-            for (String canton : data.get(year).keySet()) {
-
-                int value = data.get(year).get(canton);
-
-                if (value > max) {
-                    max = value;
-                    result = canton + " (" + year + "): " + value;
-                }
+        for (DatenEingang entry : data) {
+            if (entry.value > max) {
+                max = entry.value;
+                result = entry.canton + " (" + entry.year + "): " + entry.value;
             }
         }
 
         return result;
     }
 
+    // Minimalwert (ohne Jahr 0)
     public String minValue() {
 
         int min = Integer.MAX_VALUE;
         String result = "";
 
-        for (Integer year : data.keySet()) {
-            for (String canton : data.get(year).keySet()) {
+        for (DatenEingang entry : data) {
 
-                int value = data.get(year).get(canton);
-                if (year == 0 || year == null) {
-                    continue; // Skip Gesamtwert
-                }
-                if (value < min) {
-                    min = value;
-                    result = canton + " (" + year + "): " + value;
-                }
+            if (entry.year == 0) continue;
+
+            if (entry.value < min) {
+                min = entry.value;
+                result = entry.canton + " (" + entry.year + "): " + entry.value;
             }
         }
 

@@ -1,4 +1,4 @@
-import java.util.Map;
+import java.util.List;
 
 public class Main {
 
@@ -7,7 +7,7 @@ public class Main {
         String csvPath = "animal_experimentation_statistics.csv";
 
         try {
-            Map<Integer, Map<String, Integer>> data =
+            List<DatenEingang> data =
                     CSV.load(csvPath);
 
             Daten analyzer =
